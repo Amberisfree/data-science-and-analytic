@@ -18,7 +18,7 @@ See the details in Jupyter Notebook by clicking links.
 
 ## 3. Affective AI and Deep Learning
 
-* [Facial Emotion Recognition](datascience.github.io/Affective_AI_Project.html): Develope an image-processing model to classify facial emotions accurately, such as sad, happy, neutral, and surprise from 20000+ dataset using convolutional neural network and achieved 80.02 accuracy.
+* [Facial Emotion Recognition](https://github.com/Amberisfree/datascience.github.io/blob/c7b8338f8652429e9c0ba01395e977b079f8055f/Affective_AI_Project.html): Develope an image-processing model to classify facial emotions accurately, such as sad, happy, neutral, and surprise from 20000+ dataset using convolutional neural network and achieved 80.02 accuracy.
 
 
 
