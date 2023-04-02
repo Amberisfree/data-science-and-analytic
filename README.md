@@ -8,7 +8,7 @@ See the details in Jupyter Notebook by clicking links.
 
 ## 1. Health Exploratory Data Analysis
 
-* [Diabetes Analysis of PIMA Tribes](): Finding risk factors and correlation patterns.
+* [Diabetes Analysis of PIMA Tribes](https://nbviewer.org/github/Amberisfree/datascience.github.io/blob/main/Pima_Indians_Diabetes_Analysis.ipynb?flush_cache=true): Finding risk factors and correlation patterns.
 * [Free-Flap lower Extremilities Reconstruction analysis](): Data dimension reduction, visualization, segmentation of pateints
 
 ## 2. Shakespeare Network Analysis
