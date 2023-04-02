@@ -13,7 +13,7 @@ See the details in Jupyter Notebook by clicking links.
 
 ## 2. Shakespeare Network Analysis
 
-* [Investigation into a time-varying Hamlet network](): Build a network of relationship between characters based on a player’s lines within each act 
+* [Investigation into a time-varying Hamlet network](https://github.com/Amberisfree/datascience.github.io/blob/main/Hamlet%20Network%20Analysis/Hamlet%20character%2002.ipynb): Build a network of relationship between characters based on a player’s lines within each act 
 * [Community Detection](): Identify Key figures in Evolution of the plot and Detect personas within each Community
 
 ## 3. Affective AI and Deep Learning
