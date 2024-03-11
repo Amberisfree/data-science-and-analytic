@@ -22,6 +22,8 @@ See the details in Jupyter Notebook by clicking links.
 
 ## 4. Finance Data Loan Analysis
 * The classification goal is to predict the likelihood of a liability customer buying personal loans.¶Our bank wants a new marketing campaign; so that we need information about the correlation between the variables given in the dataset. The objective of this analysis is to utilize finance data to gain insights and make informed decisions in classifying our clients into our banks’ potential candidate for selling personal loans in the near future.
+* Explored tree algorithms and ensembled methods, such as bagging, boosting, and random forests
+* Anaylzed its ROC CURVE and Tuned its decision threshold. 
 
 ## 5. [Music Recommendation System]()
 
