@@ -20,7 +20,8 @@ See the details in Jupyter Notebook by clicking links.
 
 * [Facial Emotion Recognition](https://github.com/Amberisfree/datascience.github.io/blob/c7b8338f8652429e9c0ba01395e977b079f8055f/Affective_AI_Project.html): Develope an image-processing model to classify facial emotions accurately, such as sad, happy, neutral, and surprise from 20000+ dataset using convolutional neural network and achieved 80.02 accuracy.
 
-## 4. [Finance Time Series Analysis]()
+## 4. Finance Data Loan Analysis
+* The classification goal is to predict the likelihood of a liability customer buying personal loans.¶Our bank wants a new marketing campaign; so that we need information about the correlation between the variables given in the dataset. The objective of this analysis is to utilize finance data to gain insights and make informed decisions in classifying our clients into our banks’ potential candidate for selling personal loans in the near future.
 
 ## 5. [Music Recommendation System]()
 
