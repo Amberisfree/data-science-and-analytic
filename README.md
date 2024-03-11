@@ -21,12 +21,16 @@ See the details in Jupyter Notebook by clicking links.
 * Lasso Reularization and PCA, residual Dignostic, 
 * Non-parametric smoothing, Bootstrap confidence interval
 
-## 3. Health Exploratory Data Analysis
+## 4.Environment and Geo-Spatial Analysis
+* Great Britain Tempertaure 
+* Iceland Crust 
+
+## 5.Bio-Statistic: Health Exploratory Data Analysis
 
 * [Diabetes Analysis of PIMA Tribes](https://nbviewer.org/github/Amberisfree/datascience.github.io/blob/main/Pima_Indians_Diabetes_Analysis.ipynb?flush_cache=true): Finding risk factors and correlation patterns.
 * [Free-Flap lower Extremilities Reconstruction analysis](): Data dimension reduction, visualization, segmentation of pateints
 
-## 4. Shakespeare Network Analysis
+## 6. Art and Humanity: Shakespeare Network Analysis
 
 * [Investigation into a time-varying Hamlet network](): Build a network of relationship between characters based on a player’s lines within each act 
 * [Community Detection](): Identify Key figures in Evolution of the plot and Detect personas within each Community
