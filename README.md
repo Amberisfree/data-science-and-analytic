@@ -23,12 +23,12 @@ See the details in Jupyter Notebook by clicking links.
 * Implemented non-parametric smoothing techniques, such as locopoly, B-spline,and Additive model, to make fewer assumptions than linear regression.
 * Used residaul diagnostic and r-squared to assesss regressors' and data's fitness and bootstrap confidence interval to effectively quantify the uncertainty of our estimated parameters.
 
-## 4.Unsupervised Learning: Kernel Density Estimation and Gaussian Mixture Model
-* Synthesized new data by samplinh from the generative model  
+## 4. Unsupervised Learning: Kernel Density Estimation and Gaussian Mixture Model
+* Synthesized new data by sampling from the generative model  
 * Clustering based on EM algorithm from the estimated probability Distribution
-* 
+* High Density Region
 
-## 5.Environment and Geo-Spatial Analysis
+## 5. Environment and Geo-Spatial Analysis
 * Great Britain Tempertaure 
 * Iceland Crust 
 
