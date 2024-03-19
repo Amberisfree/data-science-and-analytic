@@ -43,7 +43,7 @@ See the details in Jupyter Notebooks and PDF reports by clicking links.
 
 ## 6. Art and Humanity: Shakespeare Network Analysis
 
-* [Investigation into a time-varying Hamlet network](): Build a network of relationship between characters based on a player’s lines within each act 
+* [Investigation into a time-varying Hamlet network](https://nbviewer.org/github/Amberisfree/data-science-and-analytic/blob/main/Hamlet%20Network%20Analysis/Hamlet%20character%2002.ipynb): Build a network of relationship between characters based on a player’s lines within each act 
 * [Community Detection](): Identify Key figures in Evolution of the plot and Detect personas within each Community
 
 
