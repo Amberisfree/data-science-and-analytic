@@ -1,0 +1,378 @@
+---
+title: "Time_Series_Durham_temp"
+author: "Amber Chang"
+date: "2024-03-18"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## EDA
+
+
+
+
+durham <- readr::read_csv("durhamtemp_1901_2019.csv", show_col_types = FALSE)
+
+
+```{r}
+#View(durham)
+```
+
+
+```{r}
+library("dplyr")
+#creates Durham monthly temp totals
+durham <- readr::read_csv("durhamtemp_1901_2019.csv", show_col_types = FALSE)
+durham$Year<-as.factor(durham$Year)
+durham$Month<-as.factor(durham$Month)
+durham$Day<-as.factor(durham$Day)
+durham$Av_temp <- durham$"Av temp"
+durham$PPT<-durham$PPT.
+
+durham_month_temp<-durham%>%
+  group_by(Year,Month)%>%
+  summarise(total_month=sum(PPT.),
+            averT=mean(Av_temp),
+            .groups = "drop")
+
+```
+
+
+
+```{r warning=FALSE, message=FALSE}
+
+library(GGally)
+library("dplyr")
+ggpairs(durham |> 
+          select( Tmax, Tmin, Av_temp,PPT)
+        )
+```
+
+```{r}
+library("skimr")
+skimr::skim(durham)
+```
+
+### Probability Distribution
+```{r}
+hist(durham$PPT)
+hist(durham$Av_temp)
+
+hist(durham$Tmin)
+hist(durham$Tmax)
+```
+
+### Missing data
+
+
+
+```{r}
+library(fpp2)
+
+ts=ts(durham[,c("Av_temp","Tmax")], start=c(1990,1),end=c(2019,12), frequency=365)
+autoplot(ts)
+
+```
+### Box Cox Transformation
+```{r}
+lambda <- BoxCox.lambda(ts)
+autoplot(BoxCox(ts,lambda))
+cat(lambda)
+```
+
+###
+```{r}
+tslm(Av_temp ~ Tmax, data=ts)
+
+```
+### Classical Depcomposition
+
+```{r}
+ts=ts(durham$Av_temp, start=c(1990,1),end=c(2019,12), frequency=365)
+
+ts %>% decompose(type="multiplicative") %>%
+  autoplot() + xlab("Year") +
+  ggtitle("Average Daily Temperature: Durham")
+
+```
+### moving Average
+```{r}
+ts=ts(durham$Av_temp, start=c(1990,1),end=c(2020,0), frequency=365)
+
+autoplot(ts, series="Data") +
+  autolayer(ma(ts,365), series="365-MA") +
+  xlab("Year") + ylab("C") +
+  ggtitle("Yearly Temperature: Durham") +
+  scale_colour_manual(values=c("Data"="grey50","365-MA"="red"),
+                      breaks=c("Data","365-MA"))
+```
+## Model Fitting
+### Exponetial Smoothing: ETS model
+```{r} 
+#ts=ts(durham$Av_temp, start=c(1990,1),end=c(2019,12), frequency=1)
+ts=ts(durham$Av_temp, start=1990,end=2020, frequency=4)
+durhamdata <- window(ts, start=1990)
+fit<-ets(durhamdata)
+summary(fit)
+fit %>% forecast(h=4) %>%
+  autoplot() +
+  ylab("Quarterly Temperature: Durham")
+```
+
+
+
+### ARIMA Model
+```{r}
+#time series object in quarterly period
+ts=ts(durham$Av_temp, start=c(1990,1),end=c(2019,12), frequency=4)
+#seasonally adjusted 
+ts %>% stl(s.window='periodic') %>% seasadj() -> eeadj
+autoplot(eeadj)
+#non-stationary, as the series wanders up and down for long periods.
+#Consequently, we will take a first difference of the data
+eeadj %>% diff() %>% ggtsdisplay(main="")
+
+
+
+```
+
+```{r}
+
+(fit <- Arima(eeadj, order=c(5,1,1)))
+checkresiduals(fit)
+```
+
+```{r}
+(forecast(fit))
+autoplot(forecast(fit))
+autoplot(fit)
+```
+
+
+
+
+### GMM
+```{r}
+hist(durham$Av_temp, probability = TRUE, col = "lightblue", main = "Histogram with Kernel Density Estimate")
+lines(density(na.omit(durham$Av_temp)), col = "red")
+
+
+library(mixtools)
+
+set.seed(123)
+#plot(density(durham$Av_temp,kernel="gaussian"))
+#plot(density(durham$Av_temp,kernel="rectangular"))
+
+```
+```{r}
+durham$Av_temp
+```
+
+
+```{r}
+library(mixtools)
+library(zoo)
+
+# Set seed for reproducibility
+set.seed(123)
+durham_ts=na.approx(durham$Av_temp)
+
+fit <- normalmixEM(durham_ts, k = 2)
+summary(fit)
+
+
+# Define a function to simulate data from a Gaussian Mixture Model
+gauss.mix.sim <- function(n, p, mu, sigma) {
+  x <- runif(n)
+  sim <- rep(0, n)
+  cp <- cumsum(p)
+  for (i in 1:n) {
+    k <- 1
+    while (x[i] > cp[k]) {
+      k <- k + 1
+    }
+    sim[i] <- rnorm(1, mu[k], sigma[k])
+  }
+  return(sim)
+}
+
+# Extract parameters from the fitted GMM model
+mu <- fit$mu  
+sigma <- fit$sigma
+p <- fit$lambda
+
+# Number of samples to generate
+n <- 10000
+
+# Generate simulated data from the GMM using the function
+simulated_data <- gauss.mix.sim(n, p, mu, sigma)
+
+hist(simulated_data,breaks=30 ,main = "Simulation from GMM")
+
+```
+
+
+
+### Monte Carlo Posterior Simulation
+
+
+```{r}
+library(rjags)
+library(durhamSLR)
+library(zoo)
+
+
+
+#dealing with missing data
+durham_ts=na.approx(durham$Av_temp)
+ts=ts(durham_ts, start=c(1990,1),end=c(2019,12), frequency=365)
+
+# Define JAGS model string
+
+model2_string <- "model{
+  for(i in 1:N){
+    y[i] ~ dnorm(mu[i], tau)   # tau = precision=inverse variance
+    mu[i] <- beta0 + beta %*% X[i,]
+  }
+  # Prior distribution on mean
+  beta0 ~ dnorm(0, 0.0001);
+  for (j in 1:p){
+    beta[j]~  dnorm(0, 0.0001)
+  }
+  tau  ~ dgamma(0.01, 0.01)
+  sigma <- 1/sqrt(tau)
+}"
+
+# Deal with datalist
+nlags <- 5
+lagged_data <- sapply(1:nlags, function(i) lag(as.vector(ts), i))
+df <- data.frame(ts, lagged_data)
+colnames(df) <- c("Original", paste0("Lag", 1:nlags))
+(df <- df[-(1:nlags), ])
+data_list <- list(X = df[,-1]
+                  , y = df[,1], N=nrow(df), p = nlags)
+
+# Compile the JAGS model
+nchains <- 4
+model2 <- jags.model(textConnection(model2_string), data = data_list, n.chains = nchains)
+
+
+```
+
+
+```{r}
+# Run MCMC sampling
+
+update(model2, 10000)
+postmod2.samples = coda.samples(
+   model2, 
+   c("beta0", "beta", "sigma"), 
+   n.iter=10000,
+   thin=5
+ )
+summary(postmod2.samples)
+```
+
+
+```{r}
+# Extract MCMC draws as tabular output
+tabular_mcmc2 = array(NA, c(nrow(postmod2.samples[[1]]), nchains, ncol(postmod2.samples[[1]])))
+
+dimnames(tabular_mcmc2) = list(iterations=NULL, chains=paste("chain:", 1:nchains, sep=""), parameters=colnames(postmod2.samples[[1]]))
+
+for(i in 1:nchains) {
+  tabular_mcmc2[,i,] = as.matrix(postmod2.samples[[i]])
+}
+# Assess convergence and mixing:
+diagnostics(tabular_mcmc2)
+effectiveSize(postmod2.samples)
+```
+
+
+
+
+
+###  Univariate state space mode
+
+```{r}
+library(rjags)
+library(durhamSLR)
+library(zoo)
+library(coda)
+library(R2jags)
+library(fpp2)
+
+#dealing with missing data
+durham_ts=na.approx(durham$Av_temp)
+ts=ts(durham_ts, start=c(1990,1),end=c(2019,12), frequency=365)
+
+# Box Cox Transformation
+#lambda <- BoxCox.lambda(ts)
+#ts<-BoxCox(ts,lambda)
+
+model.loc <- ("ts_model.txt")
+jagsscript <- cat("
+model {  
+   # priors on parameters
+   u ~ dnorm(0, 0.01); 
+   inv.q ~ dgamma(0.001,0.001); 
+   q <- 1/inv.q;
+   inv.r ~ dgamma(0.001,0.001);
+   r <- 1/inv.r; 
+   X0 ~ dnorm(Y1, 0.001);
+   
+   # likelihood
+   X[1] ~ dnorm(X0 + u, inv.q);
+   EY[1] <- X[1];
+   Y[1] ~ dnorm(EY[1], inv.r);
+   for(t in 2:N) {
+      X[t] ~ dnorm(X[t-1] + u, inv.q);
+      EY[t] <- X[t];
+      Y[t] ~ dnorm(EY[t], inv.r); 
+   }
+}  
+", 
+    file = model.loc)
+
+#forecast
+#jags.data <- list(Y = c(ts, NA, NA, NA), N = (length(ts) + 3), Y1 = ts[1])
+jags.data <- list(Y = ts, N = length(ts), Y1 = ts[1])
+jags.params <- c("q", "r", "EY", "u")
+mod_ss <- jags(jags.data, parameters.to.save = jags.params, model.file =model.loc,     n.chains = 3, n.burnin = 500, n.thin = 5, n.iter = 50000, 
+    DIC = TRUE)
+
+```
+
+```{r}
+plotModelOutput <- function(jagsmodel, Y) {
+    # attach the model
+    EY <- jagsmodel$BUGSoutput$sims.list$EY
+    x <- seq(1, length(Y))
+    summaryPredictions <- cbind(apply(EY, 2, quantile, 0.025), 
+        apply(EY, 2, mean), apply(EY, 2, quantile, 0.975))
+    plot(Y, col = "white", ylim = c(min(c(Y, summaryPredictions)), 
+        max(c(Y, summaryPredictions))), xlab = "", ylab = "95% CIs of predictions and data", 
+        main = paste("JAGS results:", jagsmodel$model.file))
+    polygon(c(x, rev(x)), c(summaryPredictions[, 1], rev(summaryPredictions[, 
+        3])), col = "grey70", border = NA)
+    lines(summaryPredictions[, 2],col="blue")
+    points(Y, cex = 0.2)
+    
+    legend("topright", legend = c("Median Prediction", "Data"), col = c("blue", "black"), pch = c(1, 1))
+
+}
+
+plotModelOutput(mod_ss, ts)
+abline(h = 10, col = "red")
+```
+
+
+
+
+
